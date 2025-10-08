@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feuer‑Quiz – Für die Grundschule</title>
+  <style>
+    /* Grundlegendes Styling für ein freundlich wirkendes Quiz. */
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #fbeee6;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    .quiz-container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      color: #b1382b;
+    }
+
+    .question {
+      margin-bottom: 30px;
+    }
+
+    .question h2 {
+      margin-top: 0;
+      font-size: 1.2em;
+      color: #622b00;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    label.option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      background: #fafafa;
+      transition: background 0.2s, border-color 0.2s;
+      text-align: center;
+    }
+
+    label.option:hover {
+      background: #f2f2f2;
+      border-color: #b1382b;
+    }
+
+    label.option input {
+      margin-bottom: 8px;
+      transform: scale(1.3);
+      accent-color: #b1382b;
+    }
+
+    label.option .emoji {
+      font-size: 2.2rem;
+      margin-bottom: 6px;
+    }
+
+    /* Einheitliches Styling für Navigations- und Absende‑Buttons */
+    button.btn {
+      background: #b1382b;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+    }
+
+    button.btn:hover {
+      background: #8d2e24;
+    }
+
+    /* Feedback-Darstellung der Antworten nach Auswertung */
+    .answer-feedback {
+      margin-top: 15px;
+    }
+
+    .answer-feedback ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .answer-feedback li {
+      margin: 4px 0;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .answer-feedback li.correct-selected {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .answer-feedback li.missed-correct {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .answer-feedback li.incorrect-selected {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Auswertungs-Schritt: Eingaben sind deaktiviert */
+    .result-step label.option {
+      pointer-events: none;
+    }
+
+    /* Im Auswertungs‑Schritt sind Eingaben deaktiviert */
+    /* (Weitere spezielle Positionierung ist nicht erforderlich) */
+    .result-step .question {
+      /* Keine zusätzliche Positionierung nötig */
+    }
+
+    /* Hervorhebung der Antworten im Auswertungsmodus */
+    label.option.correct-answer {
+      border-color: #28a745;
+      background-color: #e9f7ef;
+    }
+
+    label.option.wrong-answer {
+      border-color: #dc3545;
+      background-color: #fcebea;
+    }
+
+    /* Nicht ausgewählte, aber korrekte Antworten werden mit grünem Hintergrund dargestellt (kein Rand) */
+    label.option.unselected-correct-answer {
+      background-color: #e9f7ef;
+      border-color: #ddd;
+    }
+
+    /* Box zur Anzeige der erreichten Punkte pro Frage */
+    .points-box {
+      background: #b1382b;
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.85em;
+      display: inline-block;
+      margin-top: 8px;
+      /* Die Box selbst erhält keine absolute Positionierung. 
+         Sie wird in einen Wrapper eingebettet, der sie rechts ausrichtet. */
+    }
+
+    /* Wrapper für die Punktebox, richtet die Box rechts aus */
+    .points-box-wrapper {
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    /* Zusammenfassender Ergebnistext im Auswertungs‑Schritt soll in Titelfarbe erscheinen */
+    .summary-text {
+      color: #b1382b;
+      font-weight: bold;
+    }
+
+    /* Schritte (Fragen) standardmäßig ausblenden; die erste wird per Inline‑Style sichtbar */
+    .question-step {
+      display: none;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background: #fff7e6;
+      border: 1px solid #f0d9c7;
+      color: #622b00;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Feuer‑Quiz</h1>
+    <p>Woran kannst du dich erinnern? Versuche, alle Fragen richtig zu beantworten!</p>
+    <form id="quizForm">
+      <!-- Schritt 1: Mehrfachauswahl -->
+      <div class="question-step" id="step1" style="display: block;">
+        <div class="question">
+          <h2>1. Was braucht man alles, um Feuer zu machen?</h2>
+          <p>(Mehrere Antworten sind möglich)</p>
+          <div class="options-grid">
+            <label class="option">
+              <input type="checkbox" name="q1" value="Feuerstein" />
+              <span class="emoji">🪨</span>
+              <span>Feuerstein</span>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="q1" value="Sonnenblumenkerne" />
+              <span class="emoji">🌻</span>
+              <span>Sonnenblumenkerne</span>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="q1" value="Zunder" />
+              <span class="emoji">🍄</span>
+              <span>Zunder</span>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="q1" value="Stück Stahl" />
+              <span class="emoji">🔩</span>
+              <span>Stück Stahl</span>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="q1" value="Distelsamen" />
+              <span class="emoji">🌱</span>
+              <span>Distelsamen</span>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="q1" value="Aluminium‑Stab" />
+              <span class="emoji">🧯</span>
+              <span>Aluminium‑Stab</span>
+            </label>
+            <label class="option">
+              <input type="checkbox" name="q1" value="Stroh" />
+              <span class="emoji">🌾</span>
+              <span>Stroh</span>
+            </label>
+          </div>
+        </div>
+        <button type="button" class="btn" onclick="nextStep();">Weiter</button>
+      </div>
+      <!-- Schritt 2: Einfache Auswahl -->
+      <div class="question-step" id="step2">
+        <div class="question">
+          <h2>2. Was braucht ein Feuer immer unbedingt, um zu brennen?</h2>
+          <div class="options-grid">
+            <label class="option">
+              <input type="radio" name="q2" value="Wachs" />
+              <span class="emoji">🕯</span>
+              <span>Wachs</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q2" value="Wasser" />
+              <span class="emoji">💧</span>
+              <span>Wasser</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q2" value="Luft" />
+              <span class="emoji">☁️</span>
+              <span>Luft</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q2" value="Feuerzeug" />
+              <span class="emoji">🔥</span>
+              <span>Feuerzeug</span>
+            </label>
+          </div>
+        </div>
+        <button type="button" class="btn" onclick="submitQuiz();">Überprüfen</button>
+      </div>
+
+      <!-- Schritt 3: Ergebnisansicht (wird nach dem Abschicken befüllt) -->
+      <div class="question-step" id="step3" style="display: none;"></div>
+    </form>
+    <div id="result" style="display: none;"></div>
+  </div>
+  <script>
+    // Aktueller Schritt des Quiz
+    let currentStep = 1;
+
+    /**
+     * Blendet den aktuellen Schritt aus und zeigt den nächsten an.
+     * Wird aufgerufen, wenn der „Weiter“-Button geklickt wird.
+     */
+    function nextStep() {
+      // Aktuellen Schritt verstecken
+      const currentDiv = document.getElementById('step' + currentStep);
+      if (currentDiv) {
+        currentDiv.style.display = 'none';
+      }
+      // Zum nächsten Schritt wechseln
+      currentStep++;
+      const nextDiv = document.getElementById('step' + currentStep);
+      if (nextDiv) {
+        nextDiv.style.display = 'block';
+        // Zum Beginn des nächsten Schritts scrollen
+        nextDiv.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+
+    function submitQuiz() {
+      // Punktestand berechnen
+      let score = 0;
+      // Richtige Antworten für die erste Frage
+      const q1Correct = new Set([
+        "Feuerstein",
+        "Zunder",
+        "Stück Stahl",
+        "Distelsamen",
+        "Stroh"
+      ]);
+      const q1Selections = Array.from(document.querySelectorAll('input[name="q1"]:checked')).map(el => el.value);
+      // Punkte für richtige Antworten vergeben
+      q1Selections.forEach(val => {
+        if (q1Correct.has(val)) {
+          score += 2;
+        }
+      });
+      // Abzug bei falschen Auswahlen
+      q1Selections.forEach(val => {
+        if (!q1Correct.has(val)) {
+          score -= 1;
+        }
+      });
+      // Richtige Antwort für die zweite Frage
+      const q2Correct = "Luft";
+      const q2Sel = document.querySelector('input[name="q2"]:checked');
+      if (q2Sel && q2Sel.value === q2Correct) {
+        score += 10;
+      }
+      // Gesamtpunktzahl
+      const maxScore = 20; // 10 Punkte pro Frage
+
+      // Textliches Feedback basierend auf der Punktezahl
+      let feedbackSummary = '';
+      if (score === maxScore) {
+        feedbackSummary = 'Super! Du hast alles richtig gemacht!';
+      } else if (score >= 14) {
+        feedbackSummary = 'Sehr gut! Nur noch ein kleiner Schritt bis zur vollen Punktzahl.';
+      } else if (score >= 8) {
+        feedbackSummary = 'Gut gemacht! Schau dir die Fragen noch einmal an und versuche es erneut.';
+      } else {
+        feedbackSummary = 'Du hast noch etwas Übung nötig – probiere es später noch einmal!';
+      }
+
+      /*
+       * Ausführliches Feedback pro Frage erstellen
+       */
+      // Frage 1: alle Optionen und Labels
+      const q1AllOptions = [
+        { value: 'Feuerstein', label: 'Feuerstein' },
+        { value: 'Sonnenblumenkerne', label: 'Sonnenblumenkerne' },
+        { value: 'Zunder', label: 'Zunder' },
+        { value: 'Stück Stahl', label: 'Stück Stahl' },
+        { value: 'Distelsamen', label: 'Distelsamen' },
+        { value: 'Aluminium‑Stab', label: 'Aluminium‑Stab' },
+        { value: 'Stroh', label: 'Stroh' }
+      ];
+      let q1FeedbackItems = q1AllOptions.map(opt => {
+        const selected = q1Selections.includes(opt.value);
+        const isCorrect = q1Correct.has(opt.value);
+        if (isCorrect && selected) {
+          return `<li class="correct-selected">✔️ ${opt.label} – richtig ausgewählt</li>`;
+        }
+        if (isCorrect && !selected) {
+          return `<li class="missed-correct">⚠️ ${opt.label} – richtige Antwort nicht ausgewählt</li>`;
+        }
+        if (!isCorrect && selected) {
+          return `<li class="incorrect-selected">❌ ${opt.label} – falsch ausgewählt</li>`;
+        }
+        // Wenn weder korrekt noch ausgewählt, keine Rückmeldung
+        return '';
+      }).filter(Boolean).join('');
+
+      const q1FeedbackHtml = `
+        <div class="answer-feedback">
+          <h3>Frage 1: Was braucht man alles, um Feuer zu machen?</h3>
+          <ul>
+            ${q1FeedbackItems}
+          </ul>
+        </div>
+      `;
+
+      // Frage 2 Feedback erstellen
+      const q2AllOptions = [
+        { value: 'Wachs', label: 'Wachs' },
+        { value: 'Wasser', label: 'Wasser' },
+        { value: 'Luft', label: 'Luft' },
+        { value: 'Feuerzeug', label: 'Feuerzeug' }
+      ];
+      let q2FeedbackItems = '';
+      if (q2Sel) {
+        if (q2Sel.value === q2Correct) {
+          q2FeedbackItems = `<li class="correct-selected">✔️ ${q2Correct} – richtig ausgewählt</li>`;
+        } else {
+          // Falsch gewählt: markiere die falsche Auswahl und die richtige Antwort
+          q2FeedbackItems = `<li class="incorrect-selected">❌ ${q2Sel.value} – falsch ausgewählt</li>` +
+                             `<li class="missed-correct">⚠️ ${q2Correct} – richtige Antwort</li>`;
+        }
+      } else {
+        // Nichts ausgewählt, zeige nur die richtige Antwort
+        q2FeedbackItems = `<li class="missed-correct">⚠️ ${q2Correct} – richtige Antwort</li>`;
+      }
+
+      const q2FeedbackHtml = `
+        <div class="answer-feedback">
+          <h3>Frage 2: Was braucht ein Feuer immer unbedingt, um zu brennen?</h3>
+          <ul>
+            ${q2FeedbackItems}
+          </ul>
+        </div>
+      `;
+
+      // Berechne Punkte pro Frage für die Punkteboxen
+      let q1Points = 0;
+      // Für jede richtige Auswahl 2 Punkte, für jede falsche Auswahl 1 Punkt Abzug
+      q1Selections.forEach(val => {
+        if (q1Correct.has(val)) {
+          q1Points += 2;
+        } else {
+          q1Points -= 1;
+        }
+      });
+      const q1Max = 10; // 5 richtige Optionen à 2 Punkte
+      // Zweite Frage: 10 Punkte bei richtiger Antwort
+      let q2Points = 0;
+      const q2Max = 10;
+      if (q2Sel && q2Sel.value === q2Correct) {
+        q2Points = 10;
+      }
+
+      // Ergebnis in bestehendem Ergebnisbereich aktualisieren (nur für Screenreader)
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <h2>Ergebnis</h2>
+        <p class="summary-text">Du hast <strong>${score}</strong> von ${maxScore} Punkten erreicht.</p>
+        <p>${feedbackSummary}</p>
+      `;
+      // Den Bereich verstecken, da die Auswertung als neuer Schritt angezeigt wird
+      resultDiv.style.display = 'none';
+
+      /*
+       * Ergebnis als neuen Schritt (Schritt 3) im Quiz anzeigen
+       */
+      // Definition der Optionen inklusive Emojis
+      const q1OptionsDetailed = [
+        { value: 'Feuerstein', label: 'Feuerstein', emoji: '🪨' },
+        { value: 'Sonnenblumenkerne', label: 'Sonnenblumenkerne', emoji: '🌻' },
+        { value: 'Zunder', label: 'Zunder', emoji: '🍄' },
+        { value: 'Stück Stahl', label: 'Stück Stahl', emoji: '🔩' },
+        { value: 'Distelsamen', label: 'Distelsamen', emoji: '🌱' },
+        { value: 'Aluminium‑Stab', label: 'Aluminium‑Stab', emoji: '🧯' },
+        { value: 'Stroh', label: 'Stroh', emoji: '🌾' }
+      ];
+      const q2OptionsDetailed = [
+        { value: 'Wachs', label: 'Wachs', emoji: '🕯' },
+        { value: 'Wasser', label: 'Wasser', emoji: '💧' },
+        { value: 'Luft', label: 'Luft', emoji: '☁️' },
+        { value: 'Feuerzeug', label: 'Feuerzeug', emoji: '🔥' }
+      ];
+      // Hilfsfunktion zum Generieren des HTMLs für eine Frage im Ergebnis
+      function buildResultSection(title, options, type, correctSet, selectedList, pointsEarned, pointsMax) {
+        let section = `<div class="question"><h3>${title}</h3><div class="options-grid">`;
+        options.forEach(opt => {
+          const selected = selectedList && selectedList.includes(opt.value);
+          const isCorrect = correctSet.has(opt.value);
+          // Im Ergebnis werden ausgewählte Antworten markiert: richtig → grün; falsch → rot;
+          // Nicht ausgewählte, aber richtige Antworten erhalten grünen Hintergrund; alle anderen bleiben neutral
+          let extraClass = '';
+          if (selected && isCorrect) {
+            extraClass = 'correct-answer';
+          } else if (selected && !isCorrect) {
+            extraClass = 'wrong-answer';
+          } else if (!selected && isCorrect) {
+            extraClass = 'unselected-correct-answer';
+          }
+          section += `<label class="option ${extraClass}">`;
+          section += `<input type="${type}" disabled ${selected ? 'checked' : ''} />`;
+          section += `<span class="emoji">${opt.emoji}</span>`;
+          section += `<span>${opt.label}</span>`;
+          section += '</label>';
+        });
+        section += '</div>';
+        // Punktebox in einem Wrapper rechts ausrichten
+        section += `<div class="points-box-wrapper"><span class="points-box">${pointsEarned}/${pointsMax}</span></div>`;
+        section += '</div>';
+        return section;
+      }
+      const q1ResultSection = buildResultSection(
+        'Frage 1: Was braucht man alles, um Feuer zu machen?',
+        q1OptionsDetailed,
+        'checkbox',
+        q1Correct,
+        q1Selections,
+        q1Points,
+        q1Max
+      );
+      const q2ResultSection = buildResultSection(
+        'Frage 2: Was braucht ein Feuer immer unbedingt, um zu brennen?',
+        q2OptionsDetailed,
+        'radio',
+        new Set([q2Correct]),
+        q2Sel ? [q2Sel.value] : [],
+        q2Points,
+        q2Max
+      );
+      // Befülle Schritt 3
+      const step3Div = document.getElementById('step3');
+      step3Div.classList.add('result-step');
+      step3Div.innerHTML = `
+        <div class="question">
+          <h2>Ergebnis</h2>
+          <p class="summary-text">Du hast <strong>${score}</strong> von <strong>${maxScore}</strong> Punkten erreicht.</p>
+          <p>${feedbackSummary}</p>
+        </div>
+        ${q1ResultSection}
+        ${q2ResultSection}
+      `;
+      // Vorherigen Schritt ausblenden und Ergebnis anzeigen
+      const step2Div = document.getElementById('step2');
+      step2Div.style.display = 'none';
+      step3Div.style.display = 'block';
+      // Zum Ergebnis scrollen
+      step3Div.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
