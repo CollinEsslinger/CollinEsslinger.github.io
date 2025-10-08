@@ -71,10 +71,9 @@
       accent-color: #b1382b;
     }
 
-    /* Bilder haben die gleiche Größe wie frühere Emojis */
     label.option img {
-      width: 2.2rem;
-      height: 2.2rem;
+      width: 100px;
+      height: 100px;
       object-fit: contain;
       margin-bottom: 6px;
       display: block;
@@ -224,11 +223,41 @@
             </label>
           </div>
         </div>
-        <button type="button" class="btn" onclick="submitQuiz();">Überprüfen</button>
+        <button type="button" class="btn" onclick="nextStep();">Weiter</button>
       </div>
 
       <!-- Schritt 3 -->
-      <div class="question-step" id="step3" style="display: none;"></div>
+      <div class="question-step" id="step3">
+        <div class="question">
+          <h2>3. Was nutzt Martin, um nicht die ganze Zeit mit dem Mund zu blasen?</h2>
+          <div class="options-grid">
+            <label class="option">
+              <input type="radio" name="q3" value="Luftpumpe" />
+              <img src="3.1 Luftpumpe.jpg" alt="Luftpumpe" />
+              <span>Luftpumpe</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q3" value="Blasebalg" />
+              <img src="3.2 Blasebalg.jpg" alt="Blasebalg" />
+              <span>Blasebalg</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q3" value="Hände" />
+              <img src="3.3 Haende.jpg" alt="Hände" />
+              <span>Hände</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q3" value="Blasrohr" />
+              <img src="3.4 Blasrohr.jpg" alt="Blasrohr" />
+              <span>Blasrohr</span>
+            </label>
+          </div>
+        </div>
+        <button type="button" class="btn" onclick="submitQuiz();">Überprüfen</button>
+      </div>
+
+      <!-- Schritt 4 (Ergebnis) -->
+      <div class="question-step" id="step4" style="display: none;"></div>
     </form>
   </div>
 
@@ -253,13 +282,17 @@
       const q2Sel = document.querySelector('input[name="q2"]:checked');
       if (q2Sel && q2Sel.value === q2Correct) score += 10;
 
+      const q3Correct = "Blasebalg";
+      const q3Sel = document.querySelector('input[name="q3"]:checked');
+      if (q3Sel && q3Sel.value === q3Correct) score += 10;
+
       // Negative Punkte verhindern
       if (score < 0) score = 0;
 
-      const maxScore = 20;
+      const maxScore = 30;
       let feedbackSummary = score === maxScore ? 'Super! Du hast alles richtig gemacht!'
-        : score >= 14 ? 'Sehr gut! Nur noch ein kleiner Schritt bis zur vollen Punktzahl.'
-        : score >= 8 ? 'Gut gemacht! Schau dir die Fragen noch einmal an und versuche es erneut.'
+        : score >= 22 ? 'Sehr gut! Nur noch ein kleiner Schritt bis zur vollen Punktzahl.'
+        : score >= 12 ? 'Gut gemacht! Schau dir die Fragen noch einmal an und versuche es erneut.'
         : 'Du hast noch etwas Übung nötig – probiere es später noch einmal!';
 
       const q1Images = {
@@ -276,6 +309,12 @@
         'Wasser': '2.2 Wasser.jpg',
         'Luft': '2.3 Luft.jpg',
         'Feuerzeug': '2.4 Feuerzeug.jpg'
+      };
+      const q3Images = {
+        'Luftpumpe': '3.1 Luftpumpe.jpg',
+        'Blasebalg': '3.2 Blasebalg.jpg',
+        'Hände': '3.3 Haende.jpg',
+        'Blasrohr': '3.4 Blasrohr.jpg'
       };
 
       function buildResultSection(title, options, type, correctSet, selectedList, pointsEarned, pointsMax, imgMap) {
@@ -296,38 +335,36 @@
         return section;
       }
 
-      // Punkte pro Frage berechnen (mind. 0)
-      let q1Points = 0;
-      q1Selections.forEach(val => q1Points += q1Correct.has(val) ? 2 : -1);
+      // Punkte pro Frage
+      let q1Points = q1Selections.reduce((p, v) => p + (q1Correct.has(v) ? 2 : -1), 0);
       if (q1Points < 0) q1Points = 0;
-
       let q2Points = (q2Sel && q2Sel.value === q2Correct) ? 10 : 0;
+      let q3Points = (q3Sel && q3Sel.value === q3Correct) ? 10 : 0;
 
       const q1ResultSection = buildResultSection(
         'Frage 1: Was braucht man alles, um Feuer zu machen?',
-        Object.keys(q1Images),
-        'checkbox',
-        q1Correct,
-        q1Selections,
-        q1Points,
-        10,
-        q1Images
+        Object.keys(q1Images), 'checkbox',
+        q1Correct, q1Selections,
+        q1Points, 10, q1Images
       );
 
       const q2ResultSection = buildResultSection(
         'Frage 2: Was braucht ein Feuer immer unbedingt, um zu brennen?',
-        Object.keys(q2Images),
-        'radio',
-        new Set([q2Correct]),
-        q2Sel ? [q2Sel.value] : [],
-        q2Points,
-        10,
-        q2Images
+        Object.keys(q2Images), 'radio',
+        new Set([q2Correct]), q2Sel ? [q2Sel.value] : [],
+        q2Points, 10, q2Images
       );
 
-      const step3Div = document.getElementById('step3');
-      step3Div.classList.add('result-step');
-      step3Div.innerHTML = `
+      const q3ResultSection = buildResultSection(
+        'Frage 3: Was nutzt Martin, um nicht die ganze Zeit mit dem Mund zu blasen?',
+        Object.keys(q3Images), 'radio',
+        new Set([q3Correct]), q3Sel ? [q3Sel.value] : [],
+        q3Points, 10, q3Images
+      );
+
+      const step4Div = document.getElementById('step4');
+      step4Div.classList.add('result-step');
+      step4Div.innerHTML = `
         <div class="question">
           <h2>Ergebnis</h2>
           <p class="summary-text">Du hast <strong>${score} von ${maxScore}</strong> Punkten erreicht.</p>
@@ -335,10 +372,11 @@
         </div>
         ${q1ResultSection}
         ${q2ResultSection}
+        ${q3ResultSection}
       `;
-      document.getElementById('step2').style.display = 'none';
-      step3Div.style.display = 'block';
-      step3Div.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('step3').style.display = 'none';
+      step4Div.style.display = 'block';
+      step4Div.scrollIntoView({ behavior: 'smooth' });
     }
   </script>
 </body>
