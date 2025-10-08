@@ -196,10 +196,10 @@
 </head>
 <body>
   <div class="quiz-container">
-    <h1>Feuer‑Quiz</h1>
+    <h1>Feuer-Quiz</h1>
     <p>Woran kannst du dich erinnern? Versuche, alle Fragen richtig zu beantworten!</p>
+
     <form id="quizForm">
-      <!-- Schritt 1: Mehrfachauswahl -->
       <div class="question-step" id="step1" style="display: block;">
         <div class="question">
           <h2>1. Was braucht man alles, um Feuer zu machen?</h2>
@@ -207,76 +207,74 @@
           <div class="options-grid">
             <label class="option">
               <input type="checkbox" name="q1" value="Feuerstein" />
-              <span class="emoji">🪨</span>
+              <img src="1.1 Feuerstein.jpg" alt="Feuerstein" />
               <span>Feuerstein</span>
             </label>
             <label class="option">
               <input type="checkbox" name="q1" value="Sonnenblumenkerne" />
-              <span class="emoji">🌻</span>
+              <img src="1.2 Sonnenblumenkerne.jpg" alt="Sonnenblumenkerne" />
               <span>Sonnenblumenkerne</span>
             </label>
             <label class="option">
               <input type="checkbox" name="q1" value="Zunder" />
-              <span class="emoji">🍄</span>
+              <img src="1.3 Zunder.jpg" alt="Zunder" />
               <span>Zunder</span>
             </label>
             <label class="option">
               <input type="checkbox" name="q1" value="Stück Stahl" />
-              <span class="emoji">🔩</span>
+              <img src="1.4 Feuerstahl.jpg" alt="Stück Stahl" />
               <span>Stück Stahl</span>
             </label>
             <label class="option">
               <input type="checkbox" name="q1" value="Distelsamen" />
-              <span class="emoji">🌱</span>
+              <img src="1.5 Distelsamen.jpg" alt="Distelsamen" />
               <span>Distelsamen</span>
             </label>
             <label class="option">
-              <input type="checkbox" name="q1" value="Aluminium‑Stab" />
-              <span class="emoji">🧯</span>
-              <span>Aluminium‑Stab</span>
+              <input type="checkbox" name="q1" value="Aluminium-Stab" />
+              <img src="1.6 Aluminium-Stab.jpg" alt="Aluminium-Stab" />
+              <span>Aluminium-Stab</span>
             </label>
             <label class="option">
               <input type="checkbox" name="q1" value="Stroh" />
-              <span class="emoji">🌾</span>
+              <img src="1.7 Stroh.jpg" alt="Stroh" />
               <span>Stroh</span>
             </label>
           </div>
         </div>
         <button type="button" class="btn" onclick="nextStep();">Weiter</button>
       </div>
-      <!-- Schritt 2: Einfache Auswahl -->
       <div class="question-step" id="step2">
         <div class="question">
           <h2>2. Was braucht ein Feuer immer unbedingt, um zu brennen?</h2>
           <div class="options-grid">
             <label class="option">
               <input type="radio" name="q2" value="Wachs" />
-              <span class="emoji">🕯</span>
+              <img src="2.1 Wachs.jpg" alt="Wachs" />
               <span>Wachs</span>
             </label>
             <label class="option">
               <input type="radio" name="q2" value="Wasser" />
-              <span class="emoji">💧</span>
+              <img src="2.2 Wasser.jpg" alt="Wasser" />
               <span>Wasser</span>
             </label>
             <label class="option">
               <input type="radio" name="q2" value="Luft" />
-              <span class="emoji">☁️</span>
+              <img src="2.3 Luft.jpg" alt="Luft" />
               <span>Luft</span>
             </label>
             <label class="option">
               <input type="radio" name="q2" value="Feuerzeug" />
-              <span class="emoji">🔥</span>
+              <img src="2.4 Feuerzeug.jpg" alt="Feuerzeug" />
               <span>Feuerzeug</span>
             </label>
           </div>
         </div>
         <button type="button" class="btn" onclick="submitQuiz();">Überprüfen</button>
       </div>
-
-      <!-- Schritt 3: Ergebnisansicht (wird nach dem Abschicken befüllt) -->
       <div class="question-step" id="step3" style="display: none;"></div>
     </form>
+
     <div id="result" style="display: none;"></div>
   </div>
   <script>
