@@ -6,41 +6,168 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feuer-Quiz – Für die Grundschule</title>
   <style>
-    body { font-family: "Segoe UI", Tahoma, sans-serif; background: #fbeee6; margin: 0; padding: 0; color: #333; }
-    .quiz-container { max-width: 800px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
-    h1 { text-align: center; margin-top: 0; color: #b1382b; }
-    .question { margin-bottom: 30px; }
-    .question h2 { margin-top: 0; font-size: 1.2em; color: #622b00; }
-    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: #fbeee6;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
 
-    label.option { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; border: 1px solid #ddd; border-radius: 8px; padding: 10px; cursor: pointer; background: #fafafa; transition: background .2s, border-color .2s; text-align: center; }
-    label.option:hover { background: #f2f2f2; border-color: #b1382b; }
-    label.option input { margin-bottom: 8px; transform: scale(1.3); accent-color: #b1382b; }
-    /* Bilder gleich groß wie frühere Emojis (2.2rem) */
-    label.option img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 6px; display: block; }
+    .quiz-container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-    button.btn { background: #b1382b; color: #fff; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; margin-top: 20px; display: block; width: 100%; }
-    button.btn:hover { background: #8d2e24; }
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      color: #b1382b;
+    }
 
-    /* Ergebnis-Hervorhebungen */
-    label.option.correct-answer { border-color: #28a745; background-color: #e9f7ef; }
-    label.option.wrong-answer { border-color: #dc3545; background-color: #fcebea; }
-    label.option.unselected-correct-answer { background-color: #e9f7ef; border-color: #ddd; }
+    .question {
+      margin-bottom: 30px;
+    }
 
-    .points-box { background: #b1382b; color: #fff; border-radius: 6px; padding: 4px 8px; font-size: .85em; display: inline-block; margin-top: 8px; }
-    .points-box-wrapper { text-align: right; margin-top: 8px; }
-    .summary-text { color: #b1382b; }
-    .question-step { display: none; }
+    .question h2 {
+      margin-top: 0;
+      font-size: 1.2em;
+      color: #622b00;
+    }
 
-    /* Drag&Drop Liste für Frage 4 */
-    .sortable { list-style: none; padding: 0; margin: 10px 0 0; }
-    .sortable-item { display: flex; align-items: center; gap: 10px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa; padding: 10px; margin-bottom: 8px; cursor: grab; }
-    .sortable-item:active { cursor: grabbing; }
-    .sortable-item.dragging { opacity: 1 !important; }
-    .sortable-item img { width: 2.2rem; height: 2.2rem; object-fit: contain; border-radius: 6px; }
-    .sortable-item .title { font-weight: 600; }
-    .sortable-item .target { margin-left: auto; font-size: .9rem; color: #622b00; opacity: .8; }
-    .drag-over { border-color: #b1382b; background: #fff7f5; }
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    label.option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      background: #fafafa;
+      transition: background 0.2s, border-color 0.2s;
+      text-align: center;
+    }
+
+    label.option:hover {
+      background: #f2f2f2;
+      border-color: #b1382b;
+    }
+
+    label.option input {
+      margin-bottom: 8px;
+      transform: scale(1.3);
+      accent-color: #b1382b;
+    }
+
+    /* Einheitliche Bildgröße für alle Quiz-Bilder */
+    label.option img,
+    .sortable-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    button.btn {
+      background: #b1382b;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+    }
+
+    button.btn:hover {
+      background: #8d2e24;
+    }
+
+    label.option.correct-answer {
+      border-color: #28a745;
+      background-color: #e9f7ef;
+    }
+
+    label.option.wrong-answer {
+      border-color: #dc3545;
+      background-color: #fcebea;
+    }
+
+    label.option.unselected-correct-answer {
+      background-color: #e9f7ef;
+      border-color: #ddd;
+    }
+
+    .points-box {
+      background: #b1382b;
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.85em;
+      display: inline-block;
+      margin-top: 8px;
+    }
+
+    .points-box-wrapper {
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    .summary-text {
+      color: #b1382b;
+    }
+
+    .question-step {
+      display: none;
+    }
+
+    /* Drag&Drop Styling */
+    .sortable {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0;
+    }
+
+    .sortable-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px dashed #ccc;
+      border-radius: 8px;
+      background: #fafafa;
+      padding: 10px;
+      margin-bottom: 8px;
+      cursor: grab;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .sortable-item:active {
+      cursor: grabbing;
+    }
+
+    .sortable-item.dragging {
+      opacity: 1 !important;
+    }
+
+    .drag-over {
+      border-color: #b1382b;
+      background: #fff7f5;
+    }
   </style>
 </head>
 <body>
@@ -55,46 +182,14 @@
           <h2>1. Was braucht man alles, um Feuer zu machen?</h2>
           <p>(Mehrere Antworten sind möglich)</p>
           <div class="options-grid">
-            <label class="option">
-              <input type="checkbox" name="q1" value="Feuerstein" />
-              <img src="1.1 Feuerstein.jpg" alt="Feuerstein" />
-              <span>Feuerstein</span>
-            </label>
-            <label class="option">
-              <input type="checkbox" name="q1" value="Sonnenblumenkerne" />
-              <img src="1.2 Sonnenblumenkerne.jpg" alt="Sonnenblumenkerne" />
-              <span>Sonnenblumenkerne</span>
-            </label>
-            <label class="option">
-              <input type="checkbox" name="q1" value="Zunder" />
-              <img src="1.3 Zunder.jpg" alt="Zunder" />
-              <span>Zunder</span>
-            </label>
-            <label class="option">
-              <input type="checkbox" name="q1" value="Stück Stahl" />
-              <img src="1.4 Feuerstahl.jpg" alt="Stück Stahl" />
-              <span>Stück Stahl</span>
-            </label>
-            <label class="option">
-              <input type="checkbox" name="q1" value="Distelsamen" />
-              <img src="1.5 Distelsamen.jpg" alt="Distelsamen" />
-              <span>Distelsamen</span>
-            </label>
-            <label class="option">
-              <input type="checkbox" name="q1" value="Aluminium-Stab" />
-              <img src="1.6 Aluminium-Stab.jpg" alt="Aluminium-Stab" />
-              <span>Aluminium-Stab</span>
-            </label>
-            <label class="option">
-              <input type="checkbox" name="q1" value="Stroh" />
-              <img src="1.7 Stroh.jpg" alt="Stroh" />
-              <span>Stroh</span>
-            </label>
-            <label class="option">
-              <input type="checkbox" name="q1" value="Holz" />
-              <img src="1.8 Holz.jpg" alt="Holz" />
-              <span>Holz</span>
-            </label>
+            <label class="option"><input type="checkbox" name="q1" value="Feuerstein" /><img src="1.1 Feuerstein.jpg" alt="Feuerstein" /><span>Feuerstein</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="Sonnenblumenkerne" /><img src="1.2 Sonnenblumenkerne.jpg" alt="Sonnenblumenkerne" /><span>Sonnenblumenkerne</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="Zunder" /><img src="1.3 Zunder.jpg" alt="Zunder" /><span>Zunder</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="Stück Stahl" /><img src="1.4 Feuerstahl.jpg" alt="Stück Stahl" /><span>Stück Stahl</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="Distelsamen" /><img src="1.5 Distelsamen.jpg" alt="Distelsamen" /><span>Distelsamen</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="Aluminium-Stab" /><img src="1.6 Aluminium-Stab.jpg" alt="Aluminium-Stab" /><span>Aluminium-Stab</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="Stroh" /><img src="1.7 Stroh.jpg" alt="Stroh" /><span>Stroh</span></label>
+            <label class="option"><input type="checkbox" name="q1" value="Holz" /><img src="1.8 Holz.jpg" alt="Holz" /><span>Holz</span></label>
           </div>
         </div>
         <button type="button" class="btn" onclick="nextStep();">Weiter</button>
@@ -105,26 +200,10 @@
         <div class="question">
           <h2>2. Was braucht ein Feuer immer unbedingt, um zu brennen?</h2>
           <div class="options-grid">
-            <label class="option">
-              <input type="radio" name="q2" value="Wachs" />
-              <img src="2.1 Wachs.jpg" alt="Wachs" />
-              <span>Wachs</span>
-            </label>
-            <label class="option">
-              <input type="radio" name="q2" value="Wasser" />
-              <img src="2.2 Wasser.jpg" alt="Wasser" />
-              <span>Wasser</span>
-            </label>
-            <label class="option">
-              <input type="radio" name="q2" value="Luft" />
-              <img src="2.3 Luft.jpg" alt="Luft" />
-              <span>Luft</span>
-            </label>
-            <label class="option">
-              <input type="radio" name="q2" value="Feuerzeug" />
-              <img src="2.4 Feuerzeug.jpg" alt="Feuerzeug" />
-              <span>Feuerzeug</span>
-            </label>
+            <label class="option"><input type="radio" name="q2" value="Wachs" /><img src="2.1 Wachs.jpg" alt="Wachs" /><span>Wachs</span></label>
+            <label class="option"><input type="radio" name="q2" value="Wasser" /><img src="2.2 Wasser.jpg" alt="Wasser" /><span>Wasser</span></label>
+            <label class="option"><input type="radio" name="q2" value="Luft" /><img src="2.3 Luft.jpg" alt="Luft" /><span>Luft</span></label>
+            <label class="option"><input type="radio" name="q2" value="Feuerzeug" /><img src="2.4 Feuerzeug.jpg" alt="Feuerzeug" /><span>Feuerzeug</span></label>
           </div>
         </div>
         <button type="button" class="btn" onclick="nextStep();">Weiter</button>
@@ -135,96 +214,72 @@
         <div class="question">
           <h2>3. Was nutzt Martin, um nicht die ganze Zeit mit dem Mund zu blasen?</h2>
           <div class="options-grid">
-            <label class="option">
-              <input type="radio" name="q3" value="Luftpumpe" />
-              <img src="3.1 Luftpumpe.jpg" alt="Luftpumpe" />
-              <span>Luftpumpe</span>
-            </label>
-            <label class="option">
-              <input type="radio" name="q3" value="Blasebalg" />
-              <img src="3.2 Blasebalg.jpg" alt="Blasebalg" />
-              <span>Blasebalg</span>
-            </label>
-            <label class="option">
-              <input type="radio" name="q3" value="Hände" />
-              <img src="3.3 Haende.jpg" alt="Hände" />
-              <span>Hände</span>
-            </label>
-            <label class="option">
-              <input type="radio" name="q3" value="Blasrohr" />
-              <img src="3.4 Blasrohr.jpg" alt="Blasrohr" />
-              <span>Blasrohr</span>
-            </label>
+            <label class="option"><input type="radio" name="q3" value="Luftpumpe" /><img src="3.1 Luftpumpe.jpg" alt="Luftpumpe" /><span>Luftpumpe</span></label>
+            <label class="option"><input type="radio" name="q3" value="Blasebalg" /><img src="3.2 Blasebalg.jpg" alt="Blasebalg" /><span>Blasebalg</span></label>
+            <label class="option"><input type="radio" name="q3" value="Hände" /><img src="3.3 Haende.jpg" alt="Hände" /><span>Hände</span></label>
+            <label class="option"><input type="radio" name="q3" value="Blasrohr" /><img src="3.4 Blasrohr.jpg" alt="Blasrohr" /><span>Blasrohr</span></label>
           </div>
         </div>
         <button type="button" class="btn" onclick="nextStep();">Weiter</button>
       </div>
 
-      <!-- Schritt 4: Drag & Drop Reihenfolge -->
+      <!-- Schritt 4 -->
       <div class="question-step" id="step4">
         <div class="question">
           <h2>4. Bringe die Schritte zum Feuer machen in die richtige Reihenfolge.</h2>
-          <p>Ziehe die Kärtchen an die richtige Position. (Am Ende steht jeweils die <strong>Ziel-Position</strong>.)</p>
+          <p>Ziehe die Kärtchen an die richtige Position.</p>
           <ul id="q4-list" class="sortable">
-            <!-- In der gewünschten Start-Reihenfolge aufgelistet -->
             <li class="sortable-item" draggable="true" data-id="ZunderDistelsamen" data-correct-pos="2">
               <img src="4.2 ZunderDistelsamen.jpg" alt="Zunder in Distelsamen legen">
               <span class="title">Zunder in Distelsamen legen</span>
-              <span class="target">(Ziel: 2)</span>
             </li>
             <li class="sortable-item" draggable="true" data-id="StrohBlasebalg" data-correct-pos="4">
               <img src="4.4 StrohBlasebalg.jpg" alt="Stroh mit Blasebalg anfeuern">
               <span class="title">Stroh mit Blasebalg anfeuern</span>
-              <span class="target">(Ziel: 4)</span>
             </li>
             <li class="sortable-item" draggable="true" data-id="ZunderFeuerstein" data-correct-pos="1">
               <img src="4.1 ZunderFeuerstein.jpg" alt="Zunder am Feuerstein zum Glimmen bringen">
               <span class="title">Zunder am Feuerstein zum Glimmen bringen</span>
-              <span class="target">(Ziel: 1)</span>
             </li>
             <li class="sortable-item" draggable="true" data-id="StrohHolz" data-correct-pos="5">
               <img src="4.5 StrohHolz.jpg" alt="Holz-Stückchen auf brennendes Stroh legen">
               <span class="title">Holz-Stückchen auf brennendes Stroh legen</span>
-              <span class="target">(Ziel: 5)</span>
             </li>
             <li class="sortable-item" draggable="true" data-id="DistelsamenStroh" data-correct-pos="3">
               <img src="4.3 DistelsamenStroh.jpg" alt="qualmenden Distelsamen in Stroh einpacken">
               <span class="title">qualmenden Distelsamen in Stroh einpacken</span>
-              <span class="target">(Ziel: 3)</span>
             </li>
           </ul>
         </div>
         <button type="button" class="btn" onclick="submitQuiz();">Überprüfen</button>
       </div>
 
-      <!-- Ergebnis -->
       <div class="question-step" id="step5" style="display: none;"></div>
     </form>
   </div>
 
   <script>
     let currentStep = 1;
-
     function nextStep() {
       document.getElementById('step' + currentStep).style.display = 'none';
       currentStep++;
-      const nextDiv = document.getElementById('step' + currentStep);
-      nextDiv.style.display = 'block';
-      nextDiv.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('step' + currentStep).style.display = 'block';
+      document.getElementById('step' + currentStep).scrollIntoView({ behavior: 'smooth' });
     }
 
-    /* --- Drag & Drop Logik für Frage 4 --- */
+    // Drag&Drop
     (function initDragDrop() {
       const list = document.getElementById('q4-list');
       let draggedEl = null;
-
       if (!list) return;
 
       list.addEventListener('dragstart', e => {
         const li = e.target.closest('.sortable-item');
         if (!li) return;
         draggedEl = li;
+        li.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setDragImage(li, 20, 20);
       });
 
       list.addEventListener('dragover', e => {
@@ -245,178 +300,62 @@
         const li = e.target.closest('.sortable-item');
         if (!li || li === draggedEl) return;
         li.classList.remove('drag-over');
-
-        // Einfügen: vor Ziel-Element, je nach Position
         const rect = li.getBoundingClientRect();
         const isAfter = (e.clientY - rect.top) > rect.height / 2;
-        if (isAfter) {
-          li.after(draggedEl);
-        } else {
-          li.before(draggedEl);
-        }
-      list.addEventListener('dragstart', e => {
-        const li = e.target.closest('.sortable-item');
-        if (!li) return;
-        draggedEl = li;
-        li.classList.add('dragging');       // <--- NEU
-        e.dataTransfer.effectAllowed = 'move';
-        // eigenes Drag-Image (das Original), damit keine Ghost-Transparenz entsteht:
-        e.dataTransfer.setDragImage(li, 20, 20);
+        if (isAfter) li.after(draggedEl);
+        else li.before(draggedEl);
       });
-      
+
       list.addEventListener('dragend', () => {
-        if (draggedEl) draggedEl.classList.remove('dragging');  // <--- NEU
+        if (draggedEl) draggedEl.classList.remove('dragging');
         draggedEl = null;
       });
-
-      });
-
-      list.addEventListener('dragend', () => { draggedEl = null; });
     })();
 
     function submitQuiz() {
       let score = 0;
-
-      /* Frage 1 (Checkboxen) */
       const q1Correct = new Set(["Feuerstein","Zunder","Stück Stahl","Distelsamen","Stroh","Holz"]);
       const q1Selections = Array.from(document.querySelectorAll('input[name="q1"]:checked')).map(el => el.value);
-
-      // Feine, faire Verteilung: +10/6 pro richtige, -1 pro falsche; am Ende runden & klemmen 0..10
       let q1Points = 0;
-      q1Selections.forEach(val => {
-        if (q1Correct.has(val)) q1Points += 10 / q1Correct.size;
-        else q1Points -= 1;
-      });
+      q1Selections.forEach(val => q1Points += q1Correct.has(val) ? 10 / q1Correct.size : -1);
       q1Points = Math.round(Math.max(0, Math.min(10, q1Points)));
 
-      /* Frage 2 (Radio) */
       const q2Correct = "Luft";
       const q2Sel = document.querySelector('input[name="q2"]:checked');
       const q2Points = (q2Sel && q2Sel.value === q2Correct) ? 10 : 0;
 
-      /* Frage 3 (Radio) */
       const q3Correct = "Blasebalg";
       const q3Sel = document.querySelector('input[name="q3"]:checked');
       const q3Points = (q3Sel && q3Sel.value === q3Correct) ? 10 : 0;
 
-      /* Frage 4 (Drag & Drop Reihenfolge) */
       const list = document.getElementById('q4-list');
       const items = Array.from(list.querySelectorAll('.sortable-item'));
-      // Zähle, wie viele Items auf der korrekten Position sind (Index beginnt bei 0 → +1)
       let correctInPlace = 0;
-      items.forEach((li, idx) => {
-        const targetPos = Number(li.getAttribute('data-correct-pos'));
-        if (targetPos === idx + 1) correctInPlace++;
-      });
-      // Punkte: 0..10, linear skaliert, ganze Zahl
+      items.forEach((li, idx) => { if (Number(li.dataset.correctPos) === idx + 1) correctInPlace++; });
       let q4Points = Math.round((correctInPlace / items.length) * 10);
       q4Points = Math.max(0, Math.min(10, q4Points));
 
-      /* Gesamtpunkte */
       score = q1Points + q2Points + q3Points + q4Points;
-      score = Math.max(0, Math.min(40, Math.round(score)));
-
       const maxScore = 40;
       const feedbackSummary =
         score === maxScore ? 'Super! Du hast alles richtig gemacht!' :
-        score >= 30        ? 'Sehr gut! Du bist fast bei der vollen Punktzahl.' :
-        score >= 20        ? 'Gut gemacht! Übe noch etwas und versuche es erneut.' :
-                             'Du hast noch etwas Übung nötig – probiere es später noch einmal!';
+        score >= 30 ? 'Sehr gut! Du bist fast bei der vollen Punktzahl.' :
+        score >= 20 ? 'Gut gemacht! Übe noch etwas und versuche es erneut.' :
+        'Du hast noch etwas Übung nötig – probiere es später noch einmal!';
 
-      /* Ergebnisdarstellung */
       const q1Images = {
-        'Feuerstein': '1.1 Feuerstein.jpg',
-        'Sonnenblumenkerne': '1.2 Sonnenblumenkerne.jpg',
-        'Zunder': '1.3 Zunder.jpg',
-        'Stück Stahl': '1.4 Feuerstahl.jpg',
-        'Aluminium-Stab': '1.6 Aluminium-Stab.jpg',
-        'Distelsamen': '1.5 Distelsamen.jpg',
-        'Stroh': '1.7 Stroh.jpg',
-        'Holz': '1.8 Holz.jpg'
+        'Feuerstein':'1.1 Feuerstein.jpg','Sonnenblumenkerne':'1.2 Sonnenblumenkerne.jpg','Zunder':'1.3 Zunder.jpg',
+        'Stück Stahl':'1.4 Feuerstahl.jpg','Aluminium-Stab':'1.6 Aluminium-Stab.jpg','Distelsamen':'1.5 Distelsamen.jpg',
+        'Stroh':'1.7 Stroh.jpg','Holz':'1.8 Holz.jpg'
       };
-      const q2Images = {
-        'Wachs': '2.1 Wachs.jpg',
-        'Wasser': '2.2 Wasser.jpg',
-        'Luft': '2.3 Luft.jpg',
-        'Feuerzeug': '2.4 Feuerzeug.jpg'
-      };
-      const q3Images = {
-        'Luftpumpe': '3.1 Luftpumpe.jpg',
-        'Blasebalg': '3.2 Blasebalg.jpg',
-        'Hände': '3.3 Haende.jpg',
-        'Blasrohr': '3.4 Blasrohr.jpg'
-      };
+      const q2Images = {'Wachs':'2.1 Wachs.jpg','Wasser':'2.2 Wasser.jpg','Luft':'2.3 Luft.jpg','Feuerzeug':'2.4 Feuerzeug.jpg'};
+      const q3Images = {'Luftpumpe':'3.1 Luftpumpe.jpg','Blasebalg':'3.2 Blasebalg.jpg','Hände':'3.3 Haende.jpg','Blasrohr':'3.4 Blasrohr.jpg'};
 
-      function buildResultSection(title, options, type, correctSet, selectedList, pointsEarned, pointsMax, imgMap) {
+      function buildResultSection(title, options, type, correctSet, selectedList, pointsEarned, pointsMax, imgMap){
         let section = `<div class="question"><h3>${title}</h3><div class="options-grid">`;
-        options.forEach(opt => {
-          const selected = selectedList.includes(opt);
-          const isCorrect = correctSet.has(opt);
-          let extraClass = selected && isCorrect ? 'correct-answer' :
-                           selected && !isCorrect ? 'wrong-answer' :
-                           !selected && isCorrect ? 'unselected-correct-answer' : '';
-          section += `<label class="option ${extraClass}">`;
-          section += `<input type="${type}" disabled ${selected ? 'checked' : ''} />`;
-          section += `<img src="${imgMap[opt]}" alt="${opt}" />`;
-          section += `<span>${opt}</span>`;
-          section += `</label>`;
+        options.forEach(opt=>{
+          const selected=selectedList.includes(opt),isCorrect=correctSet.has(opt);
+          let cls=selected&&isCorrect?'correct-answer':selected&&!isCorrect?'wrong-answer':!selected&&isCorrect?'unselected-correct-answer':'';
+          section+=`<label class="option ${cls}"><input type="${type}" disabled ${selected?'checked':''}/><img src="${imgMap[opt]}" alt="${opt}"/><span>${opt}</span></label>`;
         });
-        section += `</div><div class="points-box-wrapper"><span class="points-box">${pointsEarned}/${pointsMax}</span></div></div>`;
-        return section;
-      }
-
-      // Spezielle Ergebnis-Sektion für die Reihenfolge (Frage 4)
-      function buildOrderResultSection(title, items, pointsEarned, pointsMax) {
-        let section = `<div class="question"><h3>${title}</h3><ul class="sortable">`;
-        items.forEach((li, idx) => {
-          const currentPos = idx + 1;
-          const targetPos = Number(li.getAttribute('data-correct-pos'));
-          const ok = currentPos === targetPos;
-          section += `
-            <li class="sortable-item" style="cursor: default; ${ok ? 'border-color:#28a745;background:#e9f7ef;' : ''}">
-              ${li.querySelector('img').outerHTML}
-              <span class="title">${li.querySelector('.title').textContent}</span>
-              <span class="target">(Dein Platz: ${currentPos} | Ziel: ${targetPos})</span>
-            </li>`;
-        });
-        section += `</ul><div class="points-box-wrapper"><span class="points-box">${pointsEarned}/${pointsMax}</span></div></div>`;
-        return section;
-      }
-
-      const q1ResultSection = buildResultSection(
-        'Frage 1: Was braucht man alles, um Feuer zu machen?',
-        Object.keys(q1Images), 'checkbox', q1Correct, q1Selections, q1Points, 10, q1Images
-      );
-      const q2ResultSection = buildResultSection(
-        'Frage 2: Was braucht ein Feuer immer unbedingt, um zu brennen?',
-        Object.keys(q2Images), 'radio', new Set([q2Correct]), q2Sel ? [q2Sel.value] : [], q2Points, 10, q2Images
-      );
-      const q3ResultSection = buildResultSection(
-        'Frage 3: Was nutzt Martin, um nicht die ganze Zeit mit dem Mund zu blasen?',
-        Object.keys(q3Images), 'radio', new Set([q3Correct]), q3Sel ? [q3Sel.value] : [], q3Points, 10, q3Images
-      );
-      const q4ResultSection = buildOrderResultSection(
-        'Frage 4: Schritte in die richtige Reihenfolge bringen',
-        items, q4Points, 10
-      );
-
-      const step5Div = document.getElementById('step5');
-      step5Div.classList.add('result-step');
-      step5Div.innerHTML = `
-        <div class="question">
-          <h2>Ergebnis</h2>
-          <p class="summary-text">Du hast <strong>${score} von ${maxScore}</strong> Punkten erreicht.</p>
-          <p>${feedbackSummary}</p>
-        </div>
-        ${q1ResultSection}
-        ${q2ResultSection}
-        ${q3ResultSection}
-        ${q4ResultSection}
-      `;
-      document.getElementById('step4').style.display = 'none';
-      step5Div.style.display = 'block';
-      step5Div.scrollIntoView({ behavior: 'smooth' });
-    }
-  </script>
-</body>
-</html>
+        return section+`</div><
