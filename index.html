@@ -36,6 +36,7 @@
     .sortable { list-style: none; padding: 0; margin: 10px 0 0; }
     .sortable-item { display: flex; align-items: center; gap: 10px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa; padding: 10px; margin-bottom: 8px; cursor: grab; }
     .sortable-item:active { cursor: grabbing; }
+    .sortable-item.dragging { opacity: 1 !important; }
     .sortable-item img { width: 2.2rem; height: 2.2rem; object-fit: contain; border-radius: 6px; }
     .sortable-item .title { font-weight: 600; }
     .sortable-item .target { margin-left: auto; font-size: .9rem; color: #622b00; opacity: .8; }
@@ -253,6 +254,21 @@
         } else {
           li.before(draggedEl);
         }
+      list.addEventListener('dragstart', e => {
+        const li = e.target.closest('.sortable-item');
+        if (!li) return;
+        draggedEl = li;
+        li.classList.add('dragging');       // <--- NEU
+        e.dataTransfer.effectAllowed = 'move';
+        // eigenes Drag-Image (das Original), damit keine Ghost-Transparenz entsteht:
+        e.dataTransfer.setDragImage(li, 20, 20);
+      });
+      
+      list.addEventListener('dragend', () => {
+        if (draggedEl) draggedEl.classList.remove('dragging');  // <--- NEU
+        draggedEl = null;
+      });
+
       });
 
       list.addEventListener('dragend', () => { draggedEl = null; });
