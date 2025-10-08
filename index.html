@@ -177,7 +177,6 @@
     /* Zusammenfassender Ergebnistext im Auswertungs‑Schritt soll in Titelfarbe erscheinen */
     .summary-text {
       color: #b1382b;
-      font-weight: bold;
     }
 
     /* Schritte (Fragen) standardmäßig ausblenden; die erste wird per Inline‑Style sichtbar */
@@ -517,7 +516,7 @@
       step3Div.innerHTML = `
         <div class="question">
           <h2>Ergebnis</h2>
-          <p class="summary-text">Du hast <strong>${score}</strong> von <strong>${maxScore}</strong> Punkten erreicht.</p>
+          <p class="summary-text">Du hast <strong>${score} von ${maxScore}</strong> Punkten erreicht.</p>
           <p>${feedbackSummary}</p>
         </div>
         ${q1ResultSection}
