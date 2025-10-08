@@ -71,10 +71,10 @@
       accent-color: #b1382b;
     }
 
-    /* Bilder sollen die gleiche Größe haben wie frühere Emojis (2.2 rem) */
+    /* Bilder haben die gleiche Größe wie frühere Emojis */
     label.option img {
-      width: 100px;
-      height: 100px;
+      width: 2.2rem;
+      height: 2.2rem;
       object-fit: contain;
       margin-bottom: 6px;
       display: block;
@@ -95,21 +95,6 @@
 
     button.btn:hover {
       background: #8d2e24;
-    }
-
-    .answer-feedback li.correct-selected {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .answer-feedback li.missed-correct {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-
-    .answer-feedback li.incorrect-selected {
-      background-color: #f8d7da;
-      color: #721c24;
     }
 
     label.option.correct-answer {
@@ -245,8 +230,6 @@
       <!-- Schritt 3 -->
       <div class="question-step" id="step3" style="display: none;"></div>
     </form>
-
-    <div id="result" style="display: none;"></div>
   </div>
 
   <script>
@@ -264,12 +247,14 @@
       let score = 0;
       const q1Correct = new Set(["Feuerstein","Zunder","Stück Stahl","Distelsamen","Stroh"]);
       const q1Selections = Array.from(document.querySelectorAll('input[name="q1"]:checked')).map(el => el.value);
-
       q1Selections.forEach(val => score += q1Correct.has(val) ? 2 : -1);
 
       const q2Correct = "Luft";
       const q2Sel = document.querySelector('input[name="q2"]:checked');
       if (q2Sel && q2Sel.value === q2Correct) score += 10;
+
+      // Negative Punkte verhindern
+      if (score < 0) score = 0;
 
       const maxScore = 20;
       let feedbackSummary = score === maxScore ? 'Super! Du hast alles richtig gemacht!'
@@ -311,9 +296,12 @@
         return section;
       }
 
+      // Punkte pro Frage berechnen (mind. 0)
       let q1Points = 0;
       q1Selections.forEach(val => q1Points += q1Correct.has(val) ? 2 : -1);
-      let q2Points = q2Sel && q2Sel.value === q2Correct ? 10 : 0;
+      if (q1Points < 0) q1Points = 0;
+
+      let q2Points = (q2Sel && q2Sel.value === q2Correct) ? 10 : 0;
 
       const q1ResultSection = buildResultSection(
         'Frage 1: Was braucht man alles, um Feuer zu machen?',
