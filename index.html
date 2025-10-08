@@ -270,29 +270,38 @@
 
     function submitQuiz() {
       let score = 0;
-      // Frage 1 mit neuer korrekter Antwort "Holz"
+    
+      // Frage 1: 6 richtige Antworten inkl. "Holz"
       const q1Correct = new Set(["Feuerstein","Zunder","Stück Stahl","Distelsamen","Stroh","Holz"]);
       const q1Selections = Array.from(document.querySelectorAll('input[name="q1"]:checked')).map(el => el.value);
-      
-      // Punkteberechnung Frage 1
+    
+      // Neue, feinere Punktevergabe:
       let q1Points = 0;
-      q1Selections.forEach(val => q1Points += q1Correct.has(val) ? 2 : -1);
-      q1Points = Math.max(0, Math.min(10, Math.round(q1Points)));
-
+      q1Selections.forEach(val => {
+        if (q1Correct.has(val)) {
+          q1Points += 10 / q1Correct.size; // +1.67 Punkte pro richtige Antwort
+        } else {
+          q1Points -= 1; // –1 pro falscher Antwort
+        }
+      });
+    
+      // Ganze Zahl, min. 0, max. 10
+      q1Points = Math.round(Math.max(0, Math.min(10, q1Points)));
+    
       // Frage 2
       const q2Correct = "Luft";
       const q2Sel = document.querySelector('input[name="q2"]:checked');
       const q2Points = (q2Sel && q2Sel.value === q2Correct) ? 10 : 0;
-
+    
       // Frage 3
       const q3Correct = "Blasebalg";
       const q3Sel = document.querySelector('input[name="q3"]:checked');
       const q3Points = (q3Sel && q3Sel.value === q3Correct) ? 10 : 0;
-
-      // Gesamtpunkte (mind. 0)
+    
+      // Gesamtpunkte berechnen
       score = q1Points + q2Points + q3Points;
       score = Math.max(0, Math.min(30, Math.round(score)));
-
+    
       const maxScore = 30;
       let feedbackSummary = score === maxScore ? 'Super! Du hast alles richtig gemacht!'
         : score >= 22 ? 'Sehr gut! Nur noch ein kleiner Schritt bis zur vollen Punktzahl.'
