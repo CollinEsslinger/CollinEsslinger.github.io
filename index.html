@@ -113,9 +113,7 @@
     /* Fixierter Mega-Button am unteren Bildschirmrand (nur in der Auswertung sichtbar) */
     .btn-fixed-bottom {
       position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      left: 0; right: 0; bottom: 0;
       z-index: 1000;
       background: #b1382b;
       color: #fff;
@@ -233,21 +231,19 @@
       nextDiv.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Merke initiale Kärtchen-Reihenfolge (für Reset)
-    window.addEventListener('DOMContentLoaded', () => {
-      const list = document.getElementById('q4-list');
-      if (list) q4InitialHTML = list.innerHTML;
-    });
-
-    /* Drag & Drop + Touch-Unterstützung für Frage 4 */
-    (function initDragDrop() {
+    function initDragDrop() {
       const list = document.getElementById('q4-list');
       if (!list) return;
+
+      // Alte Listener entfernen durch Klonen
+      const newList = list.cloneNode(true);
+      list.parentNode.replaceChild(newList, list);
+      const ul = newList;
 
       let draggedEl = null;
 
       // Desktop-Drag
-      list.addEventListener('dragstart', e => {
+      ul.addEventListener('dragstart', e => {
         const li = e.target.closest('.sortable-item');
         if (!li) return;
         draggedEl = li;
@@ -256,20 +252,20 @@
         e.dataTransfer.setDragImage(li, 20, 20);
       });
 
-      list.addEventListener('dragover', e => {
+      ul.addEventListener('dragover', e => {
         e.preventDefault();
         const li = e.target.closest('.sortable-item');
         if (!li || li === draggedEl) return;
         li.classList.add('drag-over');
       });
 
-      list.addEventListener('dragleave', e => {
+      ul.addEventListener('dragleave', e => {
         const li = e.target.closest('.sortable-item');
         if (!li) return;
         li.classList.remove('drag-over');
       });
 
-      list.addEventListener('drop', e => {
+      ul.addEventListener('drop', e => {
         e.preventDefault();
         const li = e.target.closest('.sortable-item');
         if (!li || li === draggedEl) return;
@@ -280,12 +276,12 @@
         else li.before(draggedEl);
       });
 
-      list.addEventListener('dragend', () => {
+      ul.addEventListener('dragend', () => {
         if (draggedEl) draggedEl.classList.remove('dragging');
         draggedEl = null;
       });
 
-      // Touch-Sortieren (Mobile/Tablet)
+      // Touch/Tablet
       let touchActive = false;
 
       function getItemAtPoint(x, y) {
@@ -294,7 +290,7 @@
         return el.closest('.sortable-item');
       }
 
-      list.addEventListener('touchstart', (e) => {
+      ul.addEventListener('touchstart', (e) => {
         const t = e.target.closest('.sortable-item');
         if (!t) return;
         touchActive = true;
@@ -303,13 +299,13 @@
         e.preventDefault();
       }, { passive: false });
 
-      list.addEventListener('touchmove', (e) => {
+      ul.addEventListener('touchmove', (e) => {
         if (!touchActive || !draggedEl) return;
         const touch = e.touches[0];
         const over = getItemAtPoint(touch.clientX, touch.clientY);
         if (!over || over === draggedEl) return;
 
-        list.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
+        ul.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
         over.classList.add('drag-over');
 
         const rect = over.getBoundingClientRect();
@@ -320,39 +316,46 @@
         e.preventDefault();
       }, { passive: false });
 
-      list.addEventListener('touchend', () => {
+      ul.addEventListener('touchend', () => {
         touchActive = false;
         if (draggedEl) draggedEl.classList.remove('dragging');
-        list.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
+        ul.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
         draggedEl = null;
       });
-    })();
+    }
+
+    // Initial: Reihenfolge merken + Drag/Touch binden
+    window.addEventListener('DOMContentLoaded', () => {
+      const list = document.getElementById('q4-list');
+      if (list) q4InitialHTML = list.innerHTML;
+      initDragDrop();
+    });
 
     function resetQuiz() {
-      // Alle Inputs leeren
+      // Fixierten Button entfernen
+      const fixedBtn = document.getElementById('play-again-fixed');
+      if (fixedBtn) fixedBtn.remove();
+
+      // Inputs leeren
       document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(i => i.checked = false);
 
-      // Kärtchen auf Ursprungszustand zurücksetzen
+      // Kärtchen auf Ursprungszustand zurücksetzen und neu binden
       const list = document.getElementById('q4-list');
-      if (list && q4InitialHTML) list.innerHTML = q4InitialHTML;
+      if (list && q4InitialHTML) {
+        list.innerHTML = q4InitialHTML;
+        initDragDrop();
+      }
 
       // Zurück zu Schritt 1
       document.querySelectorAll('.question-step').forEach(step => step.style.display = 'none');
       currentStep = 1;
       document.getElementById('step1').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Drag/Touch-Events erneut an Kärtchen binden (nach Reset)
-      // (einfach die Init-Funktion erneut aufrufen)
-      (function reinit() {
-        const ev = new Event('DOMContentLoaded');
-        window.dispatchEvent(ev);
-      })();
     }
 
     function submitQuiz() {
       /* --- Punkteberechnung --- */
-      // Frage 1: 6 korrekte Antworten inkl. Holz
+      // Frage 1 (0..10)
       const q1Correct = new Set(["Feuerstein","Zunder","Stück Stahl","Distelsamen","Stroh","Holz"]);
       const q1Selections = Array.from(document.querySelectorAll('input[name="q1"]:checked')).map(el => el.value);
       let q1Points = 0;
@@ -362,17 +365,17 @@
       });
       q1Points = Math.round(Math.max(0, Math.min(10, q1Points))); // ganze Zahl, 0..10
 
-      // Frage 2
+      // Frage 2 (0..5)
       const q2Correct = "Luft";
       const q2Sel = document.querySelector('input[name="q2"]:checked');
-      const q2Points = (q2Sel && q2Sel.value === q2Correct) ? 10 : 0;
+      const q2Points = (q2Sel && q2Sel.value === q2Correct) ? 5 : 0;
 
-      // Frage 3
+      // Frage 3 (0..5)
       const q3Correct = "Blasebalg";
       const q3Sel = document.querySelector('input[name="q3"]:checked');
-      const q3Points = (q3Sel && q3Sel.value === q3Correct) ? 10 : 0;
+      const q3Points = (q3Sel && q3Sel.value === q3Correct) ? 5 : 0;
 
-      // Frage 4 (Reihenfolge)
+      // Frage 4 (0..10)
       const list = document.getElementById('q4-list');
       const items = Array.from(list.querySelectorAll('.sortable-item'));
       let correctInPlace = 0;
@@ -380,14 +383,14 @@
       let q4Points = Math.round((correctInPlace / items.length) * 10);
       q4Points = Math.max(0, Math.min(10, q4Points));
 
-      // Gesamtpunkte
+      // Gesamtpunkte (max 30)
       const score = q1Points + q2Points + q3Points + q4Points;
-      const maxScore = 40;
+      const maxScore = 30;
 
       const feedbackSummary =
         score === maxScore ? 'Super! Du hast alles richtig gemacht!' :
-        score >= 30 ? 'Sehr gut! Du bist fast bei der vollen Punktzahl.' :
-        score >= 20 ? 'Gut gemacht! Übe noch etwas und versuche es erneut.' :
+        score >= 22 ? 'Sehr gut! Du bist fast bei der vollen Punktzahl.' :
+        score >= 12 ? 'Gut gemacht! Übe noch etwas und versuche es erneut.' :
         'Du hast noch etwas Übung nötig – probiere es später noch einmal!';
 
       /* --- Ergebnisdarstellung --- */
@@ -436,15 +439,15 @@
 
       const q1ResultSection = buildResultSection(
         'Frage 1: Was braucht man alles, um Feuer zu machen?',
-        Object.keys(q1Images), 'checkbox', new Set(Object.keys(q1Images).filter(k=>['Feuerstein','Zunder','Stück Stahl','Distelsamen','Stroh','Holz'].includes(k))), q1Selections, q1Points, 10, q1Images
+        Object.keys(q1Images), 'checkbox', new Set(['Feuerstein','Zunder','Stück Stahl','Distelsamen','Stroh','Holz']), q1Selections,  q1Points, 10, q1Images
       );
       const q2ResultSection = buildResultSection(
         'Frage 2: Was braucht ein Feuer immer unbedingt, um zu brennen?',
-        Object.keys(q2Images), 'radio', new Set(['Luft']), q2Sel ? [q2Sel.value] : [], q2Points, 10, q2Images
+        Object.keys(q2Images), 'radio', new Set(['Luft']),  q2Sel ? [q2Sel.value] : [], q2Points, 5, q2Images
       );
       const q3ResultSection = buildResultSection(
         'Frage 3: Was nutzt Martin, um nicht die ganze Zeit mit dem Mund zu blasen?',
-        Object.keys(q3Images), 'radio', new Set(['Blasebalg']), q3Sel ? [q3Sel.value] : [], q3Points, 10, q3Images
+        Object.keys(q3Images), 'radio', new Set(['Blasebalg']), q3Sel ? [q3Sel.value] : [], q3Points, 5, q3Images
       );
       const q4ResultSection = buildOrderResultSection(
         'Frage 4: Schritte in die richtige Reihenfolge bringen',
@@ -452,7 +455,7 @@
       );
 
       const step5Div = document.getElementById('step5');
-      step5Div.classList.add('result-step', 'result-pad-bottom'); /* Platz nach unten für fixen Button */
+      step5Div.classList.add('result-step', 'result-pad-bottom');
       step5Div.innerHTML = `
         <div class="question">
           <h2>Ergebnis</h2>
@@ -463,13 +466,10 @@
         ${q2ResultSection}
         ${q3ResultSection}
         ${q4ResultSection}
-
-        <!-- Zusatz: Gesamt-Punktebox direkt UNTER der letzten Frage -->
         <div class="points-box-wrapper"><span class="points-box">gesamt: ${score}/${maxScore}</span></div>
       `;
 
-      // Fixierter Mega-Button am unteren Rand (nur in Auswertung)
-      // Falls schon vorhanden (zweite Auswertung), erst entfernen
+      // Fixierten "Nochmal spielen"-Button neu erzeugen
       const oldFixedBtn = document.getElementById('play-again-fixed');
       if (oldFixedBtn) oldFixedBtn.remove();
       const fixedBtn = document.createElement('button');
