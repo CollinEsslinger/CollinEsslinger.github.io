@@ -5,12 +5,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feuer-Quiz – Für die Grundschule</title>
-
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="Feuer Icon.png">
   <link rel="shortcut icon" type="image/png" href="Feuer Icon.png">
   <link rel="apple-touch-icon" href="Feuer Icon.png">
-
   <style>
     body {
       font-family: "Segoe UI", Tahoma, sans-serif;
@@ -53,7 +51,6 @@
       background: #fafafa;
       transition: background 0.2s, border-color 0.2s;
       text-align: center;
-      user-select: none;
     }
     label.option:hover { background: #f2f2f2; border-color: #b1382b; }
     label.option input { margin-bottom: 8px; transform: scale(1.3); accent-color: #b1382b; }
@@ -93,14 +90,8 @@
 
     .question-step { display: none; }
 
-    /* Sortierliste & Karten */
-    .sortable {
-      list-style: none;
-      padding: 0;
-      margin: 10px 0 0;
-      position: relative;
-      touch-action: none; /* WICHTIG: gesamte Liste! */
-    }
+    /* Drag&Drop Styling */
+    .sortable { list-style: none; padding: 0; margin: 10px 0 0; }
     .sortable-item {
       display: flex;
       align-items: center;
@@ -110,38 +101,13 @@
       background: #fafafa;
       padding: 10px;
       margin-bottom: 8px;
-      transition: transform 150ms ease; /* FLIP-Animation */
       cursor: grab;
-      user-select: none;
-      /* (touch-action nicht nötig hier, aber ok) */
+      transition: background 0.2s, border-color 0.2s;
+      touch-action: none; /* wichtig für Pointer/Touch-Drag */
     }
     .sortable-item:active { cursor: grabbing; }
-
-    /* Platzhalter-Lücke */
-    .placeholder {
-      border: 2px dashed #b1382b;
-      border-radius: 8px;
-      background: #fff7f5;
-      margin-bottom: 8px;
-      height: 0; /* wird dynamisch gesetzt */
-    }
-
-    /* Die „schwebende“ gezogene Karte (hängt am Finger/Maus) */
-    .drag-ghost {
-      position: fixed; /* folgt dem Pointer zuverlässig */
-      left: 0; top: 0;
-      width: 0; /* wird dynamisch gesetzt */
-      z-index: 999;
-      pointer-events: none;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      opacity: 1; /* explizit opaque */
-      transform: translate3d(0,0,0);
-      transition: none; /* keine FLIP-Transition auf dem Ghost */
-      background: #fafafa;
-      border: 1px dashed #ccc;
-      border-radius: 8px;
-      user-select: none;
-    }
+    .sortable-item.dragging { opacity: 1 !important; } /* keine Transparenz beim Ziehen */
+    .drag-over { border-color: #b1382b; background: #fff7f5; }
 
     /* Ergebnis-Ansicht: Platz für fixen Button unten schaffen */
     .result-pad-bottom {
@@ -150,11 +116,20 @@
 
     /* Fixierter Mega-Button am unteren Bildschirmrand (nur in der Auswertung sichtbar) */
     .btn-fixed-bottom {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
-      background: #b1382b; color: #fff; border: none; font-size: 1.25rem;
-      padding: 18px 24px; border-radius: 0; width: 100%; cursor: pointer;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 1000;
+      background: #b1382b;
+      color: #fff;
+      border: none;
+      font-size: 1.25rem;
+      padding: 18px 24px;
+      border-radius: 0;
+      width: 100%;
+      cursor: pointer;
       box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
-      padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); /* iOS Safe Area */
+      /* iOS Safe Area */
+      padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     }
     .btn-fixed-bottom:hover { background: #8d2e24; }
   </style>
@@ -218,23 +193,23 @@
           <h2>4. Bringe die Schritte zum Feuer machen in die richtige Reihenfolge.</h2>
           <p>Ziehe die Kärtchen an die richtige Position.</p>
           <ul id="q4-list" class="sortable">
-            <li class="sortable-item" data-id="ZunderDistelsamen" data-correct-pos="2">
+            <li class="sortable-item" draggable="true" data-id="ZunderDistelsamen" data-correct-pos="2">
               <img src="4.2 ZunderDistelsamen.jpg" alt="Zunder in Distelsamen legen">
               <span class="title">Zunder in Distelsamen legen</span>
             </li>
-            <li class="sortable-item" data-id="StrohBlasebalg" data-correct-pos="4">
+            <li class="sortable-item" draggable="true" data-id="StrohBlasebalg" data-correct-pos="4">
               <img src="4.4 StrohBlasebalg.jpg" alt="Stroh mit Blasebalg anfeuern">
               <span class="title">Stroh mit Blasebalg anfeuern</span>
             </li>
-            <li class="sortable-item" data-id="ZunderFeuerstein" data-correct-pos="1">
+            <li class="sortable-item" draggable="true" data-id="ZunderFeuerstein" data-correct-pos="1">
               <img src="4.1 ZunderFeuerstein.jpg" alt="Zunder am Feuerstein zum Glimmen bringen">
               <span class="title">Zunder am Feuerstein zum Glimmen bringen</span>
             </li>
-            <li class="sortable-item" data-id="StrohHolz" data-correct-pos="5">
+            <li class="sortable-item" draggable="true" data-id="StrohHolz" data-correct-pos="5">
               <img src="4.5 StrohHolz.jpg" alt="Holz-Stückchen auf brennendes Stroh legen">
               <span class="title">Holz-Stückchen auf brennendes Stroh legen</span>
             </li>
-            <li class="sortable-item" data-id="DistelsamenStroh" data-correct-pos="3">
+            <li class="sortable-item" draggable="true" data-id="DistelsamenStroh" data-correct-pos="3">
               <img src="4.3 DistelsamenStroh.jpg" alt="qualmenden Distelsamen in Stroh einpacken">
               <span class="title">qualmenden Distelsamen in Stroh einpacken</span>
             </li>
@@ -260,148 +235,100 @@
       nextDiv.scrollIntoView({ behavior: 'smooth' });
     }
 
-    /* ===== Sortier-Logik mit Pointer-Capture + FLIP ===== */
-    function enableSortableWithSnap(ul) {
-      let dragging = null;    // Original-Element (wird beim Drag aus dem DOM entfernt)
-      let ghost = null;       // schwebende Kopie
-      let placeholder = null; // Lücke
-      let offsetY = 0;        // Finger-/Maus-Offset innerhalb der Karte
-      let ghostWidth = 0;
-      let started = false;
-
-      const items = () => Array.from(ul.querySelectorAll('.sortable-item'));
-      const siblings = () => items(); // dragging ist während des Drags nicht im DOM
-
-      function flipAnimate(beforeRects) {
-        siblings().forEach(el => {
-          const first = beforeRects.get(el);
-          const last  = el.getBoundingClientRect();
-          if (!first) return;
-          const dx = first.left - last.left;
-          const dy = first.top  - last.top;
-          if (dx || dy) {
-            el.style.transform  = `translate(${dx}px, ${dy}px)`;
-            el.style.transition = 'transform 0s';
-            requestAnimationFrame(() => {
-              el.style.transition = 'transform 150ms ease';
-              el.style.transform  = '';
-            });
-          }
-        });
-      }
-
-      function recordRects() {
-        const map = new Map();
-        siblings().forEach(el => map.set(el, el.getBoundingClientRect()));
-        return map;
-      }
-
-      function onPointerDown(e) {
-        const target = e.target.closest('.sortable-item');
-        if (!target) return;
-        e.preventDefault();
-
-        started  = true;
-        dragging = target;
-
-        const rect = dragging.getBoundingClientRect();
-        ghostWidth = rect.width;
-        offsetY    = e.clientY - rect.top;
-
-        // Platzhalter
-        placeholder = document.createElement('li');
-        placeholder.className = 'placeholder';
-        placeholder.style.height = rect.height + 'px';
-        placeholder.style.marginBottom = getComputedStyle(dragging).marginBottom;
-        ul.insertBefore(placeholder, dragging.nextSibling);
-
-        // Original-Element aus DOM entfernen
-        ul.removeChild(dragging);
-
-        // Ghost
-        ghost = dragging.cloneNode(true);
-        ghost.classList.add('drag-ghost');
-        ghost.style.width  = rect.width + 'px';
-        ghost.style.height = rect.height + 'px';
-        document.body.appendChild(ghost);
-        moveGhost(e.clientX, e.clientY);
-
-        // Pointer-Capture auf die Liste, damit alle Moves sicher ankommen
-        try { ul.setPointerCapture(e.pointerId); } catch(_) {}
-
-        // Zusätzlich Fallback-Listener (für Browser ohne verlässliche Capture)
-        document.addEventListener('pointermove', onPointerMove, { passive: false });
-        document.addEventListener('pointerup',   onPointerUp,   { passive: false });
-      }
-
-      function moveGhost(clientX, clientY) {
-        const x = Math.min(Math.max(clientX, 0), window.innerWidth);
-        const y = clientY - offsetY;
-        ghost.style.transform = `translate(${x - ghostWidth/2}px, ${y}px)`;
-      }
-
-      function onPointerMove(e) {
-        if (!started || !ghost) return;
-        e.preventDefault();
-        moveGhost(e.clientX, e.clientY);
-
-        const beforeRects = recordRects();
-
-        // Mittelpunkt der Ghost-Karte
-        const gr = ghost.getBoundingClientRect();
-        const centerY = gr.top + gr.height / 2;
-
-        // Placeholder an neue Stelle setzen (Snap nach Mitte)
-        const els = siblings();
-        let placed = false;
-        for (let i = 0; i < els.length; i++) {
-          const r = els[i].getBoundingClientRect();
-          const mid = r.top + r.height / 2;
-          if (centerY < mid) {
-            ul.insertBefore(placeholder, els[i]);
-            placed = true;
-            break;
-          }
-        }
-        if (!placed) ul.appendChild(placeholder);
-
-        flipAnimate(beforeRects);
-      }
-
-      function onPointerUp(e) {
-        if (!started) return;
-        started = false;
-
-        // In Lücke snappen
-        ul.insertBefore(dragging, placeholder);
-
-        // Aufräumen
-        placeholder.remove();
-        ghost.remove();
-        placeholder = null;
-        ghost = null;
-        dragging = null;
-
-        try { ul.releasePointerCapture(e.pointerId); } catch(_) {}
-        document.removeEventListener('pointermove', onPointerMove);
-        document.removeEventListener('pointerup',   onPointerUp);
-      }
-
-      // Doppelte Handler vermeiden: Liste klonen & ersetzen
-      const fresh = ul.cloneNode(true);
-      ul.parentNode.replaceChild(fresh, ul);
-
-      // Events auf der frischen Liste
-      fresh.addEventListener('pointerdown', onPointerDown, { passive: false });
-    }
-
     function initDragDrop() {
       const list = document.getElementById('q4-list');
       if (!list) return;
-      enableSortableWithSnap(list);
+
+      // Alte Listener entfernen durch Klonen
+      const newList = list.cloneNode(true);
+      list.parentNode.replaceChild(newList, list);
+      const ul = newList;
+
+      let draggedEl = null;
+
+      // Desktop-Drag
+      ul.addEventListener('dragstart', e => {
+        const li = e.target.closest('.sortable-item');
+        if (!li) return;
+        draggedEl = li;
+        li.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setDragImage(li, 20, 20);
+      });
+
+      ul.addEventListener('dragover', e => {
+        e.preventDefault();
+        const li = e.target.closest('.sortable-item');
+        if (!li || li === draggedEl) return;
+        li.classList.add('drag-over');
+      });
+
+      ul.addEventListener('dragleave', e => {
+        const li = e.target.closest('.sortable-item');
+        if (!li) return;
+        li.classList.remove('drag-over');
+      });
+
+      ul.addEventListener('drop', e => {
+        e.preventDefault();
+        const li = e.target.closest('.sortable-item');
+        if (!li || li === draggedEl) return;
+        li.classList.remove('drag-over');
+        const rect = li.getBoundingClientRect();
+        const isAfter = (e.clientY - rect.top) > rect.height / 2;
+        if (isAfter) li.after(draggedEl);
+        else li.before(draggedEl);
+      });
+
+      ul.addEventListener('dragend', () => {
+        if (draggedEl) draggedEl.classList.remove('dragging');
+        draggedEl = null;
+      });
+
+      // Touch/Tablet
+      let touchActive = false;
+
+      function getItemAtPoint(x, y) {
+        const el = document.elementFromPoint(x, y);
+        if (!el) return null;
+        return el.closest('.sortable-item');
+      }
+
+      ul.addEventListener('touchstart', (e) => {
+        const t = e.target.closest('.sortable-item');
+        if (!t) return;
+        touchActive = true;
+        draggedEl = t;
+        draggedEl.classList.add('dragging');
+        e.preventDefault();
+      }, { passive: false });
+
+      ul.addEventListener('touchmove', (e) => {
+        if (!touchActive || !draggedEl) return;
+        const touch = e.touches[0];
+        const over = getItemAtPoint(touch.clientX, touch.clientY);
+        if (!over || over === draggedEl) return;
+
+        ul.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
+        over.classList.add('drag-over');
+
+        const rect = over.getBoundingClientRect();
+        const isAfter = (touch.clientY - rect.top) > rect.height / 2;
+        if (isAfter) over.after(draggedEl);
+        else over.before(draggedEl);
+
+        e.preventDefault();
+      }, { passive: false });
+
+      ul.addEventListener('touchend', () => {
+        touchActive = false;
+        if (draggedEl) draggedEl.classList.remove('dragging');
+        ul.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
+        draggedEl = null;
+      });
     }
 
-    // Initial: Reihenfolge merken + Sortable binden
+    // Initial: Reihenfolge merken + Drag/Touch binden
     window.addEventListener('DOMContentLoaded', () => {
       const list = document.getElementById('q4-list');
       if (list) q4InitialHTML = list.innerHTML;
@@ -413,7 +340,7 @@
       const fixedBtn = document.getElementById('play-again-fixed');
       if (fixedBtn) fixedBtn.remove();
 
-      // Alle Inputs leeren
+      // Inputs leeren
       document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(i => i.checked = false);
 
       // Kärtchen auf Ursprungszustand zurücksetzen und neu binden
@@ -430,8 +357,8 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    /* ===== Bewertung (wie zuvor) ===== */
     function submitQuiz() {
+      /* --- Punkteberechnung --- */
       // Frage 1 (0..10)
       const q1Correct = new Set(["Feuerstein","Zunder","Stück Stahl","Distelsamen","Stroh","Holz"]);
       const q1Selections = Array.from(document.querySelectorAll('input[name="q1"]:checked')).map(el => el.value);
@@ -500,8 +427,8 @@
 
       function buildOrderResultSection(title, items, pointsEarned, pointsMax) {
         let section = `<div class="question"><h3>${title}</h3><ul class="sortable">`;
-        items.forEach((li) => {
-          const currentPos = Array.from(li.parentNode.children).indexOf(li) + 1;
+        items.forEach((li, idx) => {
+          const currentPos = idx + 1;
           const targetPos = Number(li.getAttribute('data-correct-pos'));
           const ok = currentPos === targetPos;
           section += `
