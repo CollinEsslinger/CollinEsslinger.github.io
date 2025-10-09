@@ -23,11 +23,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    h1 {
-      text-align: center;
-      margin-top: 0;
-      color: #b1382b;
-    }
+    h1 { text-align: center; margin-top: 0; color: #b1382b; }
 
     .question { margin-bottom: 30px; }
     .question h2 { margin-top: 0; font-size: 1.2em; color: #622b00; }
@@ -103,10 +99,37 @@
       margin-bottom: 8px;
       cursor: grab;
       transition: background 0.2s, border-color 0.2s;
+      touch-action: none; /* wichtig für Pointer/Touch-Drag */
     }
     .sortable-item:active { cursor: grabbing; }
     .sortable-item.dragging { opacity: 1 !important; } /* keine Transparenz beim Ziehen */
     .drag-over { border-color: #b1382b; background: #fff7f5; }
+
+    /* Ergebnis-Ansicht: Platz für fixen Button unten schaffen */
+    .result-pad-bottom {
+      padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Fixierter Mega-Button am unteren Bildschirmrand (nur in der Auswertung sichtbar) */
+    .btn-fixed-bottom {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      background: #b1382b;
+      color: #fff;
+      border: none;
+      font-size: 1.25rem;
+      padding: 18px 24px;
+      border-radius: 0;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+      /* iOS Safe Area */
+      padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    }
+    .btn-fixed-bottom:hover { background: #8d2e24; }
   </style>
 </head>
 <body>
@@ -200,6 +223,7 @@
 
   <script>
     let currentStep = 1;
+    let q4InitialHTML = '';
 
     function nextStep() {
       document.getElementById('step' + currentStep).style.display = 'none';
@@ -209,19 +233,27 @@
       nextDiv.scrollIntoView({ behavior: 'smooth' });
     }
 
-    /* Drag & Drop Logik für Frage 4 */
+    // Merke initiale Kärtchen-Reihenfolge (für Reset)
+    window.addEventListener('DOMContentLoaded', () => {
+      const list = document.getElementById('q4-list');
+      if (list) q4InitialHTML = list.innerHTML;
+    });
+
+    /* Drag & Drop + Touch-Unterstützung für Frage 4 */
     (function initDragDrop() {
       const list = document.getElementById('q4-list');
-      let draggedEl = null;
       if (!list) return;
 
+      let draggedEl = null;
+
+      // Desktop-Drag
       list.addEventListener('dragstart', e => {
         const li = e.target.closest('.sortable-item');
         if (!li) return;
         draggedEl = li;
-        li.classList.add('dragging');       // Kein Transparenzeffekt
+        li.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setDragImage(li, 20, 20); // eigenes Drag-Image = Original
+        e.dataTransfer.setDragImage(li, 20, 20);
       });
 
       list.addEventListener('dragover', e => {
@@ -242,7 +274,6 @@
         const li = e.target.closest('.sortable-item');
         if (!li || li === draggedEl) return;
         li.classList.remove('drag-over');
-
         const rect = li.getBoundingClientRect();
         const isAfter = (e.clientY - rect.top) > rect.height / 2;
         if (isAfter) li.after(draggedEl);
@@ -253,7 +284,71 @@
         if (draggedEl) draggedEl.classList.remove('dragging');
         draggedEl = null;
       });
+
+      // Touch-Sortieren (Mobile/Tablet)
+      let touchActive = false;
+
+      function getItemAtPoint(x, y) {
+        const el = document.elementFromPoint(x, y);
+        if (!el) return null;
+        return el.closest('.sortable-item');
+      }
+
+      list.addEventListener('touchstart', (e) => {
+        const t = e.target.closest('.sortable-item');
+        if (!t) return;
+        touchActive = true;
+        draggedEl = t;
+        draggedEl.classList.add('dragging');
+        e.preventDefault();
+      }, { passive: false });
+
+      list.addEventListener('touchmove', (e) => {
+        if (!touchActive || !draggedEl) return;
+        const touch = e.touches[0];
+        const over = getItemAtPoint(touch.clientX, touch.clientY);
+        if (!over || over === draggedEl) return;
+
+        list.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
+        over.classList.add('drag-over');
+
+        const rect = over.getBoundingClientRect();
+        const isAfter = (touch.clientY - rect.top) > rect.height / 2;
+        if (isAfter) over.after(draggedEl);
+        else over.before(draggedEl);
+
+        e.preventDefault();
+      }, { passive: false });
+
+      list.addEventListener('touchend', () => {
+        touchActive = false;
+        if (draggedEl) draggedEl.classList.remove('dragging');
+        list.querySelectorAll('.drag-over').forEach(n => n.classList.remove('drag-over'));
+        draggedEl = null;
+      });
     })();
+
+    function resetQuiz() {
+      // Alle Inputs leeren
+      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(i => i.checked = false);
+
+      // Kärtchen auf Ursprungszustand zurücksetzen
+      const list = document.getElementById('q4-list');
+      if (list && q4InitialHTML) list.innerHTML = q4InitialHTML;
+
+      // Zurück zu Schritt 1
+      document.querySelectorAll('.question-step').forEach(step => step.style.display = 'none');
+      currentStep = 1;
+      document.getElementById('step1').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Drag/Touch-Events erneut an Kärtchen binden (nach Reset)
+      // (einfach die Init-Funktion erneut aufrufen)
+      (function reinit() {
+        const ev = new Event('DOMContentLoaded');
+        window.dispatchEvent(ev);
+      })();
+    }
 
     function submitQuiz() {
       /* --- Punkteberechnung --- */
@@ -333,7 +428,6 @@
             <li class="sortable-item" style="cursor: default; ${ok ? 'border-color:#28a745;background:#e9f7ef;' : ''}">
               ${li.querySelector('img').outerHTML}
               <span class="title">${li.querySelector('.title').textContent}</span>
-              <!-- Kein „Ziel“-Schriftzug mehr -->
             </li>`;
         });
         section += `</ul><div class="points-box-wrapper"><span class="points-box">${pointsEarned}/${pointsMax}</span></div></div>`;
@@ -342,15 +436,15 @@
 
       const q1ResultSection = buildResultSection(
         'Frage 1: Was braucht man alles, um Feuer zu machen?',
-        Object.keys(q1Images), 'checkbox', q1Correct, q1Selections, q1Points, 10, q1Images
+        Object.keys(q1Images), 'checkbox', new Set(Object.keys(q1Images).filter(k=>['Feuerstein','Zunder','Stück Stahl','Distelsamen','Stroh','Holz'].includes(k))), q1Selections, q1Points, 10, q1Images
       );
       const q2ResultSection = buildResultSection(
         'Frage 2: Was braucht ein Feuer immer unbedingt, um zu brennen?',
-        Object.keys(q2Images), 'radio', new Set([q2Correct]), q2Sel ? [q2Sel.value] : [], q2Points, 10, q2Images
+        Object.keys(q2Images), 'radio', new Set(['Luft']), q2Sel ? [q2Sel.value] : [], q2Points, 10, q2Images
       );
       const q3ResultSection = buildResultSection(
         'Frage 3: Was nutzt Martin, um nicht die ganze Zeit mit dem Mund zu blasen?',
-        Object.keys(q3Images), 'radio', new Set([q3Correct]), q3Sel ? [q3Sel.value] : [], q3Points, 10, q3Images
+        Object.keys(q3Images), 'radio', new Set(['Blasebalg']), q3Sel ? [q3Sel.value] : [], q3Points, 10, q3Images
       );
       const q4ResultSection = buildOrderResultSection(
         'Frage 4: Schritte in die richtige Reihenfolge bringen',
@@ -358,7 +452,7 @@
       );
 
       const step5Div = document.getElementById('step5');
-      step5Div.classList.add('result-step');
+      step5Div.classList.add('result-step', 'result-pad-bottom'); /* Platz nach unten für fixen Button */
       step5Div.innerHTML = `
         <div class="question">
           <h2>Ergebnis</h2>
@@ -369,7 +463,24 @@
         ${q2ResultSection}
         ${q3ResultSection}
         ${q4ResultSection}
+
+        <!-- Zusatz: Gesamt-Punktebox direkt UNTER der letzten Frage -->
+        <div class="points-box-wrapper"><span class="points-box">gesamt: ${score}/${maxScore}</span></div>
       `;
+
+      // Fixierter Mega-Button am unteren Rand (nur in Auswertung)
+      // Falls schon vorhanden (zweite Auswertung), erst entfernen
+      const oldFixedBtn = document.getElementById('play-again-fixed');
+      if (oldFixedBtn) oldFixedBtn.remove();
+      const fixedBtn = document.createElement('button');
+      fixedBtn.id = 'play-again-fixed';
+      fixedBtn.className = 'btn-fixed-bottom';
+      fixedBtn.type = 'button';
+      fixedBtn.textContent = '🔁 Nochmal spielen';
+      fixedBtn.addEventListener('click', resetQuiz);
+      document.body.appendChild(fixedBtn);
+
+      // Ansicht umschalten
       document.getElementById('step4').style.display = 'none';
       step5Div.style.display = 'block';
       step5Div.scrollIntoView({ behavior: 'smooth' });
